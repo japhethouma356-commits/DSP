@@ -1,4 +1,4 @@
-# BSP Web Clone (School Project)
+# DSP Web Clone (School Project)
 
 - Built with React + Vite
 - No app logic: structure and styling only

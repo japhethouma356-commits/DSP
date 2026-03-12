@@ -105,7 +105,7 @@ function TopBar({ onMenu, onLogin }) {
         >
           <MenuIcon />
         </button>
-        <div className="brand">BSP</div>
+        <div className="brand">DSP</div>
         <button
           type="button"
           className="login-btn"
@@ -145,7 +145,7 @@ function SideDrawer({ open, activePath, onClose, onNavigate }) {
       />
       <aside className="drawer" aria-label="Menu">
         <div className="drawer-top">
-          <div className="drawer-brand">BSP</div>
+          <div className="drawer-brand">DSP</div>
           <button
             type="button"
             className="icon-btn drawer-close"
@@ -733,7 +733,7 @@ export default function App() {
   }, [path])
 
   return (
-    <div className="bsp-app">
+    <div className="DSP-app">
       <TopBar onMenu={() => setDrawerOpen(true)} onLogin={() => navigate('/n')} />
       <SideDrawer
         open={drawerOpen}
