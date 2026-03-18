@@ -15,6 +15,21 @@ import {
   RadarIcon,
 } from './components/Icons'
 
+const HERO_FRAMES = [
+  '/img/dsp2.jpg',
+  '/img/dsp3.jpg',
+  '/img/dsp4.jpg',
+  '/img/dps5.jpg',
+  '/img/dsp6.jpg',
+  '/img/dsp7.jpg',
+  '/img/dsp8.jpg',
+  '/img/dsp9.jpg',
+].map((src, index) => ({
+  id: src,
+  src,
+  alt: `DSP slide ${index + 1}`,
+}))
+
 const SAVINGS_TIERS = [
   { deposit: '1-9,999', rate: '0.7%' },
   { deposit: '10,000-99,999', rate: '0.9%' },
@@ -69,6 +84,58 @@ const POOL_ITEMS = [
   },
 ]
 
+const FEATURED_VIDEO = {
+  url: 'https://www.youtube.com/watch?v=B5RNbJNOq_0',
+  embedUrl: 'https://www.youtube.com/embed/B5RNbJNOq_0',
+  title: 'How To Send USDC From Coinbase To Coinbase Wallet (Quick & Easy)',
+}
+
+const FAQ_ITEMS = [
+  {
+    question: 'Does Aave have enough security?',
+    answer:
+      'Aave uses audited smart contracts, governance controls, and transparent reserve data, but users should still review wallet, market, and protocol risk before participating.',
+  },
+  {
+    question: "Aave's history of development",
+    answer:
+      'The protocol evolved from ETHLend into Aave and expanded across lending, flash loans, risk management, and community governance in the broader DeFi ecosystem.',
+  },
+  {
+    question: 'Mobile app',
+    answer:
+      'The mobile experience is designed for quick account access, portfolio checks, and onboarding guidance so users can review balances and activity while away from desktop.',
+  },
+  {
+    question: 'Privacy Policy',
+    answer:
+      'Personal information should be limited to what is necessary for account support, compliance, and fraud prevention, with wallet activity remaining visible on public chains.',
+  },
+  {
+    question: 'Information for Participants',
+    answer:
+      'Participants should verify the wallet address, understand reward timing, and read the plan terms carefully before committing funds to any blockchain savings activity.',
+  },
+]
+
+const NFT_CATEGORY_ITEMS = [
+  {
+    name: 'HOT',
+    description: 'Trending collections with the most active bidding and fresh floor movement.',
+    tags: ['Live drops', 'Top volume', 'Fast updates'],
+  },
+  {
+    name: 'ART',
+    description: 'Curated digital artwork with creator-focused releases and collectible editions.',
+    tags: ['1/1 pieces', 'Creator sets', 'Gallery picks'],
+  },
+  {
+    name: 'PFP',
+    description: 'Profile-picture collections organized around rarity traits, utility, and community demand.',
+    tags: ['Trait filters', 'Rarity view', 'Community stats'],
+  },
+]
+
 function Card({ title, children, subtitle }) {
   return (
     <section className="card">
@@ -81,14 +148,23 @@ function Card({ title, children, subtitle }) {
   )
 }
 
-function DotPager() {
+function DotPager({ count = 0, activeIndex = 0, onSelect }) {
   return (
-    <div className="dots" aria-hidden="true">
-      <span className="dot" />
-      <span className="dot active" />
-      <span className="dot" />
-      <span className="dot" />
-      <span className="dot" />
+    <div className="dots" aria-label="Carousel pages">
+      {Array.from({ length: count }).map((_, index) => {
+        const active = index === activeIndex
+
+        return (
+          <button
+            key={index}
+            type="button"
+            className={`dot ${active ? 'active' : ''}`}
+            aria-label={`Go to slide ${index + 1}`}
+            aria-pressed={active}
+            onClick={() => onSelect?.(index)}
+          />
+        )
+      })}
     </div>
   )
 }
@@ -211,13 +287,43 @@ function MiniFeatureRow() {
 }
 
 function HeroIllustration() {
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  useEffect(() => {
+    if (HERO_FRAMES.length < 2) return undefined
+
+    const timer = window.setInterval(() => {
+      setActiveIndex((current) => (current + 1) % HERO_FRAMES.length)
+    }, 3200)
+
+    return () => window.clearInterval(timer)
+  }, [])
+
   return (
-    <div className="hero-visual" aria-hidden="true">
-      <div className="hero-coin left">USDC</div>
-      <div className="hero-scale" />
-      <div className="hero-coin right">$</div>
-      <div className="hero-glow" />
-    </div>
+    <>
+      <div className="hero-visual" aria-label="Reference image carousel">
+        <div
+          className="hero-track"
+          style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+        >
+          {HERO_FRAMES.map((frame) => (
+            <img
+              key={frame.id}
+              className="hero-frame"
+              src={frame.src}
+              alt={frame.alt}
+              loading="lazy"
+            />
+          ))}
+        </div>
+        <div className="hero-glow" />
+      </div>
+      <DotPager
+        count={HERO_FRAMES.length}
+        activeIndex={activeIndex}
+        onSelect={setActiveIndex}
+      />
+    </>
   )
 }
 
@@ -233,6 +339,62 @@ function EagleMark() {
   )
 }
 
+function FaqAccordionItem({ item, open, onToggle }) {
+  return (
+    <div className={`faq-item ${open ? 'open' : ''}`}>
+      <button
+        type="button"
+        className="faq-row"
+        aria-expanded={open}
+        onClick={onToggle}
+      >
+        <span>{item.question}</span>
+        <span className="faq-ico" aria-hidden="true">
+          {open ? '-' : '+'}
+        </span>
+      </button>
+      {open ? (
+        <div className="faq-panel">
+          <p className="faq-copy muted">{item.answer}</p>
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function NftDropdownCard({ item, open, onToggle }) {
+  return (
+    <section className={`nav-card ${open ? 'open' : ''}`} aria-label={item.name}>
+      <button
+        type="button"
+        className="nav-card-btn"
+        aria-expanded={open}
+        onClick={onToggle}
+      >
+        <span className="nav-card-left">
+          <span className="nav-flag" aria-hidden="true" />
+          <span className="nav-card-title">{item.name}</span>
+        </span>
+        <span className={`nav-card-right ${open ? 'open' : ''}`} aria-hidden="true">
+          {'>'}
+        </span>
+      </button>
+      {open ? (
+        <div className="nav-card-panel">
+          <p className="nav-card-desc muted">{item.description}</p>
+          <div className="nav-card-tags" aria-label={`${item.name} highlights`}>
+            {item.tags.map((tag) => (
+              <span key={tag} className="nav-tag">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </section>
+  )
+}
+
 function HomeScreen() {
   return (
     <div className="screen" id="home">
@@ -242,7 +404,6 @@ function HomeScreen() {
           in Blockchain Technology
         </p>
         <HeroIllustration />
-        <DotPager />
       </div>
 
       <section className="banner-card" aria-label="Fixed-term savings plan">
@@ -256,6 +417,8 @@ function HomeScreen() {
 }
 
 function SavingsScreen() {
+  const [openFaq, setOpenFaq] = useState(FAQ_ITEMS[0]?.question ?? '')
+
   return (
     <div className="screen" id="savings">
       <Card title="FLEXIBLE SAVINGS PLAN">
@@ -392,19 +555,17 @@ function SavingsScreen() {
 
       <Card title="FAQ">
         <div className="faq">
-          {[
-            'Does Aave have enough security?',
-            "Aave's history of development",
-            'Mobile app',
-            'Privacy Policy',
-            'Information for Participants',
-          ].map((q) => (
-            <div key={q} className="faq-row">
-              <div>{q}</div>
-              <div className="faq-ico" aria-hidden="true">
-                v
-              </div>
-            </div>
+          {FAQ_ITEMS.map((item) => (
+            <FaqAccordionItem
+              key={item.question}
+              item={item}
+              open={openFaq === item.question}
+              onToggle={() =>
+                setOpenFaq((current) =>
+                  current === item.question ? '' : item.question
+                )
+              }
+            />
           ))}
         </div>
       </Card>
@@ -413,6 +574,9 @@ function SavingsScreen() {
 }
 
 function NftScreen() {
+  const [openCategory, setOpenCategory] = useState(
+    NFT_CATEGORY_ITEMS[0]?.name ?? ''
+  )
   const metrics = [
     { label: 'Trading Volume', value: '442960', tint: 'blue' },
     { label: 'Transaction Amount', value: '99356', tint: 'purple' },
@@ -422,7 +586,16 @@ function NftScreen() {
 
   return (
     <div className="screen">
-      <section className="video-card" aria-label="Video placeholder">
+      <section className="video-card" aria-label="Featured YouTube video">
+        <iframe
+          className="video-frame"
+          src={FEATURED_VIDEO.embedUrl}
+          title={FEATURED_VIDEO.title}
+          loading="lazy"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+        />
         <div className="video-strip" aria-hidden="true">
           <div className="thumb t1" />
           <div className="thumb t2" />
@@ -437,6 +610,15 @@ function NftScreen() {
         </div>
       </section>
 
+      <a
+        className="video-cta"
+        href={FEATURED_VIDEO.url}
+        target="_blank"
+        rel="noreferrer"
+      >
+        Watch on YouTube
+      </a>
+
       <div className="metric-grid" aria-label="NFT metrics">
         {metrics.map((m) => (
           <div key={m.label} className="metric">
@@ -449,16 +631,15 @@ function NftScreen() {
         ))}
       </div>
 
-      {['HOT', 'ART', 'PFP'].map((name) => (
-        <section key={name} className="nav-card" aria-label={name}>
-          <div className="nav-card-left">
-            <span className="nav-flag" aria-hidden="true" />
-            <div className="nav-card-title">{name}</div>
-          </div>
-          <div className="nav-card-right" aria-hidden="true">
-            {'>'}
-          </div>
-        </section>
+      {NFT_CATEGORY_ITEMS.map((item) => (
+        <NftDropdownCard
+          key={item.name}
+          item={item}
+          open={openCategory === item.name}
+          onToggle={() =>
+            setOpenCategory((current) => (current === item.name ? '' : item.name))
+          }
+        />
       ))}
     </div>
   )
